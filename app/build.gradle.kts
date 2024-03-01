@@ -19,9 +19,18 @@ android {
             useSupportLibrary = true
         }
     }
+//    signingConfigs {
+//        release {
+//            storeFile file("my-release-key.keystore")
+//            storePassword "your_store_password"
+//            keyAlias "your_key_alias"
+//            keyPassword "your_key_password"
+//        }
+//    }
 
     buildTypes {
         release {
+//            signingConfig signingConfigs.releas/e
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),

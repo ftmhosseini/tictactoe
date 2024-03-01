@@ -1,7 +1,6 @@
 package com.example.mytictactoaapp
 
 import android.os.Bundle
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.activity.ComponentActivity
@@ -32,6 +31,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.mytictactoaapp.ui.theme.MyTicTacToaAppTheme
 
 class MainActivity : ComponentActivity() {
@@ -41,7 +41,8 @@ class MainActivity : ComponentActivity() {
             MyTicTacToaAppTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier
+                        .fillMaxSize()
                         .fillMaxWidth()
                         .fillMaxHeight(),
                     color = MaterialTheme.colorScheme.background
@@ -60,7 +61,7 @@ fun TitleGame(name: String) {
         verticalAlignment = Alignment.Top
     ) {
         Text(
-            text = "Hello $name!",
+            text = "$name!",
             style = MaterialTheme.typography.titleLarge,
             modifier = Modifier.align(Alignment.CenterVertically)
         )
@@ -69,7 +70,6 @@ fun TitleGame(name: String) {
 
 @Composable
 fun inputColumns(): Pair<Int, Cell> {
-
     val height = LocalConfiguration.current.screenHeightDp
     val width = LocalConfiguration.current.screenWidthDp
     val numberOfButtonAtMost = if (height < width) {
@@ -81,31 +81,36 @@ fun inputColumns(): Pair<Int, Cell> {
         mutableIntStateOf(3)
     }
     var startBy by rememberSaveable { mutableStateOf(Cell.User) }
-    val (clicked, setClicked) = remember { mutableStateOf(false) }
-    // Call TableWithButtons if the button is clicked
-    if (clicked) {
-        Board.BoardTable.cells.clear()
-        BoardContent(Pair(boardSize, startBy))
-        setClicked(false) // Reset the clicked state to false after resetting the game
 
+    var clicked by remember { mutableStateOf(false) }
+
+    if (clicked) {
+        // Reset the game
+        Board.BoardTable.cells.clear()
+        CreateInitialButtonValues(boardSize)
+        clicked = false
     }
     Row(
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
     ) {
         var textFieldValue by rememberSaveable { mutableStateOf("3") }
-        Button(
-            modifier = Modifier
-                .wrapContentHeight() // This is similar to wrap_content for height
-                .widthIn(max = 135.dp)
+        Column {
+            Text(text = "start by",
+                fontSize = 13.sp)
+            Button(
+                modifier = Modifier
+                    .wrapContentHeight() // This is similar to wrap_content for height
+                    .widthIn(max = 135.dp)
 //                .wrapContentWidth()  // This is similar to wrap_content for width
 //                .background(Color.Gray)
-                .padding(10.dp),
-            onClick = {
-                startBy = if (startBy == Cell.User) Cell.Computer else Cell.User
+                    .padding(10.dp),
+                onClick = {
+                    startBy = if (startBy == Cell.User) Cell.Android else Cell.User
+                }
+            ) {
+                Text(startBy.name)
             }
-        ) {
-            Text(startBy.name)
         }
         TextField(
             modifier = Modifier
@@ -122,6 +127,9 @@ fun inputColumns(): Pair<Int, Cell> {
             },
             label = { Text("Board size") },
         )
+        fun isNumeric(input: String): Boolean {
+            return input.toIntOrNull() != null
+        }
         Button(
             modifier = Modifier
                 .wrapContentHeight() // This is similar to wrap_content for height
@@ -130,14 +138,15 @@ fun inputColumns(): Pair<Int, Cell> {
                 .padding(10.dp),
             onClick = {
                 boardSize =
-                    if (textFieldValue.isNotEmpty() && textFieldValue.toInt() in 3..numberOfButtonAtMost) {
+                    if (isNumeric(textFieldValue) && textFieldValue.toInt() in 3..numberOfButtonAtMost) {
                         // Number is valid, handle it (e.g., navigate to the next screen)
                         textFieldValue.toInt()
                     } else {
                         // Number is not valid, show an error message or perform some other action
                         3
                     }
-                setClicked(true)
+                clicked = true
+//                setClicked(true)
             }
         ) {
             Text(text = "Start Game")
@@ -190,32 +199,33 @@ fun TicTacToeContent() {
         Spacer(modifier = Modifier.height(32.dp))
         BoardContent(boardInfo)
         Spacer(modifier = Modifier.height(32.dp))
-        ResetButton(boardInfo)
+//        ResetButton(boardInfo)
     }
 }
 
-@Composable
-fun ResetButton(boardInfo: Pair<Int, Cell>) {
-    // Create a mutable state variable to track whether the button is clicked
-    val (clicked, setClicked) = remember { mutableStateOf(false) }
-    // Call TableWithButtons if the button is clicked
-    if (clicked) {
-        Board.BoardTable.cells.clear()
-        BoardContent(boardInfo)
-        setClicked(false) // Reset the clicked state to false after resetting the game
-    }
-    Row(
-        horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.Bottom
-    ) {
-        Button(onClick = { // Update the state variable when the button is clicked
-            setClicked(true)
-        }
-        ) {
-            Text(text = "Reset Game")
-        }
-    }
-}
+//@Composable
+//fun ResetButton(boardInfo: Pair<Int, Cell>) {
+//    // Create a mutable state variable to track whether the button is clicked
+//    val (clickedResetButton, setClickedResetButton) = remember { mutableStateOf(false) }
+//    // Call TableWithButtons if the button is clicked
+//    if (clickedResetButton) {
+//        Board.BoardTable.cells.clear()
+//        CreateInitialButtonValues(boardInfo.first)
+//        BoardContent(boardInfo)
+//        setClickedResetButton(false) // Reset the clicked state to false after resetting the game
+//    }
+//    Row(
+//        horizontalArrangement = Arrangement.Center,
+//        verticalAlignment = Alignment.Bottom
+//    ) {
+//        Button(onClick = { // Update the state variable when the button is clicked
+//            setClickedResetButton(true)
+//        }
+//        ) {
+//            Text(text = "Reset Game")
+//        }
+//    }
+//}
 
 @Preview(showBackground = true)
 @Composable
